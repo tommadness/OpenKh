@@ -32,7 +32,7 @@ namespace OpenKh.Patcher
                 DestinationPath = destinationPath;
             }
 
-            public string GetOriginalAssetPath(string path) => Path.Combine(SourceModAssetPath, path);
+            public string GetOriginalAssetPath(string path) => Path.Combine(OriginalAssetPath, path);
             public string GetSourceModAssetPath(string path) => Path.Combine(SourceModAssetPath, path);
             public string GetDestinationPath(string path)
             {
