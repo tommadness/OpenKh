@@ -165,10 +165,10 @@ void Panacea::Initialize()
 bool Panacea::TransformFilePath(char* strOutPath, int maxLength, const char* originalPath)
 {
     const char BaseOriginalPath[] = "C:/hd28/EPIC/juefigs/KH2ReSource/";
-    const char ModFolderPath[] = "C:\\Users\\Arcade\\Desktop\\git\\OpenKh\\OpenKh.Tools.ModsManager\\bin\\Debug\\net5.0-windows\\mod";
+    const char ModFolderPath[] = "mod";
 
     const char* actualFileName = originalPath + sizeof(BaseOriginalPath) - 1;
-    sprintf_s(strOutPath, maxLength, "%s\\%s", ModFolderPath, actualFileName);
+    sprintf_s(strOutPath, maxLength, "%s/%s", ModFolderPath, actualFileName);
 
     return GetFileAttributesA(strOutPath) != INVALID_FILE_ATTRIBUTES;
 }

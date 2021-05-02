@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Diagnostics;
 using Xe.IO;
 using Xe.Tools;
 using Xe.Tools.Wpf.Commands;
@@ -203,6 +204,23 @@ namespace OpenKh.Tools.ModsManager.ViewModels
 
         private async Task ExtractKingdomHearts2GameData(string isoLocation, string gameDataLocation)
         {
+            if (ConfigurationService.GameEdition == 2)
+            {
+                await Task.Run(() =>
+                {
+                    var processStart = new ProcessStartInfo
+                    {
+                        FileName = "cmd",
+                        Arguments = string.Format("/K {1}\\..\\OpenKh.Command.IdxImg.exe hed extract --output \"{0}\" Image\\en\\kh2_*", gameDataLocation, ConfigurationService.GameModPath),
+                        WorkingDirectory = ConfigurationService.PcReleaseLocation
+                    };
+                    var process = System.Diagnostics.Process.Start(processStart);
+                    process.WaitForExit();
+                });
+
+
+                return;
+            }
             var fileBlocks = File.OpenRead(isoLocation).Using(stream =>
             {
                 var bufferedStream = new BufferedStream(stream);

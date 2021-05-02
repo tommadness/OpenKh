@@ -32,8 +32,7 @@
             Title="Game edition"
             CanSelectNextPage="{Binding IsGameSelected}"
             Description="Selected the preferred edition to launch the game"
-            NextPage="{Binding ElementName=PageIsoSelection}"
-            CanFinish="{Binding IsEpicGamesRelease}">
+            NextPage="{Binding ElementName=PageIsoSelection}">
             <StackPanel>
                 <TextBlock Margin="0 0 0 3">Game edition</TextBlock>
                 <ComboBox Margin="0 0 0 6" SelectedIndex="{Binding GameEdition}">

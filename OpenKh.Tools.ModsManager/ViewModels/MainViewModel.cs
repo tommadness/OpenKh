@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.Windows;
 using Xe.Tools;
 using Xe.Tools.Wpf.Commands;
@@ -17,6 +18,7 @@ using static OpenKh.Tools.ModsManager.Helpers;
 
 namespace OpenKh.Tools.ModsManager.ViewModels
 {
+
     public interface IChangeModEnableState
     {
         void ModEnableStateChanged();
@@ -24,6 +26,17 @@ namespace OpenKh.Tools.ModsManager.ViewModels
 
     public class MainViewModel : BaseNotifyPropertyChanged, IChangeModEnableState
     {
+        [DllImport("kernel32.dll")]
+        static extern bool CreateSymbolicLink(
+        string lpSymlinkFileName, string lpTargetFileName, SymbolicLink dwFlags);
+
+        enum SymbolicLink
+        {
+            File = 0,
+            Directory = 1
+        }
+
+
         private static Version _version = Assembly.GetEntryAssembly()?.GetName()?.Version;
         private static string ApplicationName = Utilities.GetApplicationName();
         private static string ApplicationVersion = Utilities.GetApplicationVersion();
@@ -281,6 +294,7 @@ namespace OpenKh.Tools.ModsManager.ViewModels
         {
             ProcessStartInfo processStartInfo;
             bool isPcsx2 = false;
+            bool isPC = false;
             switch (ConfigurationService.GameEdition)
             {
                 case 0:
@@ -316,23 +330,28 @@ namespace OpenKh.Tools.ModsManager.ViewModels
                     Log.Info("Starting Kingdom Hearts II: Final Mix");
                     processStartInfo = new ProcessStartInfo
                     {
-                        FileName = Path.Combine(ConfigurationService.PcReleaseLocation, "KINGDOM HEARTS II FINAL MIX.exe"),
+                        FileName = "cmd",
+                        Arguments = "/K start /B com.epicgames.launcher://apps/68c214c58f694ae88c2dab6f209b43e4?action=launch",
                         WorkingDirectory = ConfigurationService.PcReleaseLocation,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
                         UseShellExecute = false,
                     };
                     // TODO copy OpenKh.Research.Panacea.dll as DINPUT8.dll
+                    isPC = true;
                     break;
             }
 
             if (processStartInfo == null || !File.Exists(processStartInfo.FileName))
             {
-                MessageBox.Show(
-                    "Unable to locate the executable. Please run the Wizard by going to the Settings menu.",
-                    "Run error", MessageBoxButton.OK, MessageBoxImage.Error);
-                CloseAllWindows();
-                return Task.CompletedTask;
+                if (!isPC)
+                {
+                    MessageBox.Show(
+                        "Unable to locate the executable. Please run the Wizard by going to the Settings menu.",
+                        "Run error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CloseAllWindows();
+                    return Task.CompletedTask;
+                }
             }
 
             _runningProcess = new Process() { StartInfo = processStartInfo };
@@ -343,6 +362,10 @@ namespace OpenKh.Tools.ModsManager.ViewModels
             _runningProcess.BeginErrorReadLine();
             if (isPcsx2)
                 _pcsx2Injector.Run(_runningProcess, _debuggingWindow);
+            if (isPC)
+            {
+                CreateSymbolicLink(ConfigurationService.PcReleaseLocation + "/mod", ConfigurationService.GameModPath, SymbolicLink.Directory);
+            }
 
             OnPropertyChanged(nameof(StopRunningInstanceCommand));
             return Task.Run(() =>
