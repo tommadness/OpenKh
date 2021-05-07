@@ -92,12 +92,14 @@ OpenKH::GameId OpenKH::DetectGame()
     wchar_t buffer[MAX_PATH]; // MAX_PATH default macro
     int len = GetModuleFileName(NULL, buffer, MAX_PATH);
 
-    const char* launcher_name = "C:\\Program Files\\Epic Games\\KH_1.5_2.5\\KINGDOM HEARTS HD 1.5+2.5 Launcher.exe";
+    int launcher_len = 38;
+    const char* launcher_name = "KINGDOM HEARTS HD 1.5+2.5 Launcher.exe";
     size_t newsize = strlen(launcher_name) + 1;
     wchar_t* launcher_name_wide = new wchar_t[newsize];
     size_t convertedChars = 0;
     mbstowcs_s(&convertedChars, launcher_name_wide, newsize, launcher_name, _TRUNCATE);
-    if (wcscmp(buffer, launcher_name_wide) == 0)
+
+    if (wcscmp(buffer+ (len-launcher_len), launcher_name_wide) == 0)
         return GameId::Unknown;
 
     if (strcmp((const char*)g_hInstance + 0x2BD2090, "dummy_string") == 0)
