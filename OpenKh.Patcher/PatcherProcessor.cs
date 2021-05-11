@@ -32,7 +32,16 @@ namespace OpenKh.Patcher
                 DestinationPath = destinationPath;
             }
 
-            public string GetOriginalAssetPath(string path) => Path.Combine(OriginalAssetPath, path);
+            public string GetOriginalAssetPath(string path)
+            {
+                // KH2 PC Uses different paths than on PS2, but PS2 mods should still work automatically on PC
+                // TODO BEFORE MERGE: Only apply this translation if the game == kh2
+                // TODO BEFORE MERGE: instead of "us", the translated path should be whatever region is selected in mm
+                // TODO BEFORE MERGE: Write unit tests for this functionality
+                string combined_path = Path.Combine(OriginalAssetPath, path);
+                string translated_path = combined_path.Replace("/jp/", "/us/").Replace("ard/", "ard/us/");
+                return translated_path;
+            }
             public string GetSourceModAssetPath(string path) => Path.Combine(SourceModAssetPath, path);
             public string GetDestinationPath(string path)
             {
